@@ -9,9 +9,14 @@ import (
     "os/signal"
     "os"
     "syscall"
-    
+
     "github.com/Arnold1/ai-app/build"
 )
+
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	build.Init()
+}
 
 func startWeb(webport string) *http.Server {
 	mux := http.NewServeMux()
