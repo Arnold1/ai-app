@@ -26,7 +26,7 @@ docker_location ?= ./provisioning/$(binary_name)/docker/
 deploy_location ?= ./provisioning/$(binary_name)/deploy/
 view_name ?= view
 
-build: bin aiappd
+build: aiappd
 
 bin:
 	mkdir -p bin
@@ -36,13 +36,16 @@ clean:
 	rm -rf ./bin
 
 aiappd: bin
-	$(build_command) bin/$(binary_name) $(pkg_name)/$(binary_name)
-	cp -f ./bin/$(binary_name) $(docker_location)/$(binary_name)
-	cp -r ./aiappd/$(view_name) $(docker_location)/$(view_name)
-	pushd $(docker_location) && docker build -t $(local_img) . && rm -rf $(binary_name) && rm -rf $(view_name) && popd
+	docker build --build-arg BUILD_TIME=$(pkg_name)/build.time=$(build_time) --build-arg VERSION=$(pkg_name)/build.number=$(version) --build-arg BUILD_SHA=$(pkg_name)/build.sha=$(build_sha) -t $(local_img) -f ./docker/Dockerfile ./
+
+	# old way:
+	#$(build_command) bin/$(binary_name) $(pkg_name)/$(binary_name)
+	#cp -f ./bin/$(binary_name) $(docker_location)/$(binary_name)
+	#cp -r ./aiappd/$(view_name) $(docker_location)/$(view_name)
+	#pushd $(docker_location) && docker build -t $(local_img) . && rm -rf $(binary_name) && rm -rf $(view_name) && popd
 
 locald: bin
-	$(build_command) bin/locald $(pkg_name)/locald
+	$(build_command) bin/locald $(pkg_name)/aiappd
 
 run: aiappd
 	docker run -p 8080:8080 --name=$(binary_name) --rm -it $(local_img)

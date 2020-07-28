@@ -1,6 +1,5 @@
 FROM debian:9.5
 RUN apt-get update && apt-get install -y \
-    cron \
     net-tools \
     ca-certificates
 RUN mkdir -p /apps/aiappd/bin/
